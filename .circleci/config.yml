@@ -4,6 +4,9 @@ jobs:
     working_directory: ~/docker-cean
     docker:
       - image: bentonam/couchbase-docker:enterprise-5.1.0
+        ports:
+          - "8091-8094:8091-8094"
+          - "11207-11210:11207-11210"
       - image: circleci/node:9.1.0
     parallelism: 1
     environment:
