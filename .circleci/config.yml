@@ -29,6 +29,10 @@ jobs:
           name: Artifacts directory creation
           command: mkdir -p ~/docker-cean/artifacts && mkdir -p ~/docker-cean/test-results
       - run:
+          name: "Install tools"
+          command: |
+            sudo apt-get update; sudo apt-get install curl
+      - run:
           name: "Starting docker"
           command: |
             docker info >/dev/null 2>&1 || service docker start
