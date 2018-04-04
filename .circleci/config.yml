@@ -4,11 +4,11 @@ jobs:
     working_directory: ~/docker-cean
     docker:
       - image: bentonam/couchbase-docker:enterprise-5.1.0
-        ports:
-          - "8091-8094:8091-8094"
-          - "11207-11210:11207-11210"
       - image: circleci/node:9.1.0
     parallelism: 1
+    ports:
+      - "8091-8094:8091-8094"
+      - "11207-11210:11207-11210"
     environment:
       DOCKER_REPO: bentonam
       IMAGE_NAME: couchbase
@@ -61,14 +61,14 @@ jobs:
             #docker build -t $IMAGE_NAME:$CIRCLE_BUILD_NUM .circleci/
             #docker run -d --name couchtest -p 8091-8094:8091-8094 -p 9110:9110 -p 11207-11211:11207-11211 -p 18091-18094:18091-18094 -t $IMAGE_NAME:$CIRCLE_BUILD_NUM
             ##### --net=couchbase -h $COUCHBASE_HOST
-            #sleep 20
+            sleep 20
             # A running cluster will respond with cluster status.
             #docker logs --tail=200 couchtest > ~/docker-cean/artifacts/couchbase.log
       - run:
           name: "Test couchbase"
           command: |
             sleep 20
-            curl -X GET -u $CLUSTER_USERNAME:$CLUSTER_PASSWORD --retry 2 --retry-delay 10 -v http://$COUCHBASE_HOST:$COUCHBASE_PORT/pools/default/buckets -C -
+            curl -X GET -u $CLUSTER_USERNAME:$CLUSTER_PASSWORD --retry 10 --retry-delay 10 -v http://$COUCHBASE_HOST:$COUCHBASE_PORT/pools/example/buckets -C -
       #- run:
       #    name: Update npm
       #    command: 'sudo npm install -g npm@latest'
