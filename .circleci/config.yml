@@ -10,7 +10,7 @@ jobs:
           - "18091-18094:18091-18094"
         environment:
           COUCHBASE_HOST: localhost
-          COUCHBASE_BUCKET: default
+          COUCHBASE_BUCKET: example
           COUCHBASE_PORT: 8091
           CLUSTER_USERNAME: Administrator
           CLUSTER_PASSWORD: password
@@ -18,15 +18,13 @@ jobs:
           RBAC_USERNAME: example
           RBAC_PASSWORD: 123456
           RBAC_ROLES: bucket_full_access[example]
-      - image: circleci/node:9.1.0
     working_directory: ~/docker-cean
     environment:
       COUCHBASE_HOST: localhost
-      COUCHBASE_BUCKET: default
+      COUCHBASE_BUCKET: example
       COUCHBASE_PORT: 8091
       CLUSTER_USERNAME: Administrator
       CLUSTER_PASSWORD: password
-      BUCKET: example
     parallelism: 1
     steps:
       - checkout
@@ -42,33 +40,12 @@ jobs:
       - run:
           name: "Test couchbase"
           command: |
-            sleep 40
-            curl -X GET -u $CLUSTER_USERNAME:$CLUSTER_PASSWORD --retry 10 --retry-delay 10 -v http://$COUCHBASE_HOST:$COUCHBASE_PORT/pools/$BUCKET/buckets -C -
-      #- run:
-      #    name: Update npm
-      #    command: 'sudo npm install -g npm@latest'
-      - run:
-          name: "Checking Versions"
-          command: |
-            npm set progress=false
-            node --version
-            npm --version
-            if [ -z "$(npm info $(npm ls --depth=-1 2>/dev/null | head -1 | cut -f 1 -d " ") 2>/dev/null)" ] ; then
-              echo "version number is fine";
-            else
-              echo "Please update version number in package.json!"
-              exit 1;
-            fi
-      - run:
-          name: Install npm
-          command: npm install
+            sleep 20
+            curl -X GET -u $CLUSTER_USERNAME:$CLUSTER_PASSWORD --retry 10 --retry-delay 10 -v http://$COUCHBASE_HOST:$COUCHBASE_PORT/pools/$COUCHBASE_BUCKET/buckets -C -
       - save_cache:
           key: dependency-cache-{{ checksum "node/package.json" }}
           paths:
             - node_modules
-      - run:
-          name: Test
-          command: npm test
       - run:
           name: Generate code coverage
           command: './node_modules/.bin/nyc report --reporter=text-lcov'
