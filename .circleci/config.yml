@@ -11,7 +11,7 @@ jobs:
       COUCHBASE_BUCKET: example
       COUCHBASE_PORT: 8091
       CLUSTER_USERNAME: Administrator
-      CLUSTER_PASSWORD: password
+      CLUSTER_PASSWORD: 123456
       BUCKET: example
       RBAC_USERNAME: example
       RBAC_PASSWORD: 123456
@@ -49,7 +49,7 @@ jobs:
           name: "Starting couchbase"
           command: |
             docker build -t $IMAGE_NAME:$CIRCLE_BUILD_NUM .circleci/
-            docker run -d --name couchtest -p 8091-8094:8091-8094 -p 9110:9110 -p 11207-11211:11207-11211 -p 18091-18094:18091-18094 -t $IMAGE_NAME:$CIRCLE_BUILD_NUM
+            docker run -d --name couchtest -p 8091-8094:8091-8094 -p 9110:9110 -p 11207-11211:11207-11211 -p 18091-18094:18091-18094 -it $IMAGE_NAME:$CIRCLE_BUILD_NUM
             sleep 20
             # A running cluster will respond with cluster status.
             docker logs --tail=200 couchtest > ~/docker-cean/artifacts/couchbase.log
