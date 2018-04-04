@@ -8,11 +8,11 @@ jobs:
       IMAGE_NAME: couchbase
       DOCKER_REPO: bentonam
       COUCHBASE_HOST: localhost
-      COUCHBASE_BUCKET: example
+      COUCHBASE_BUCKET: default
       COUCHBASE_PORT: 8091
       CLUSTER_USERNAME: Administrator
       CLUSTER_PASSWORD: 123456
-      BUCKET: example
+      BUCKET: default
       RBAC_USERNAME: example
       RBAC_PASSWORD: 123456
       RBAC_ROLES: bucket_full_access[example]
@@ -49,19 +49,21 @@ jobs:
           name: "Starting couchbase"
           command: |
             docker build -t $IMAGE_NAME:$CIRCLE_BUILD_NUM .circleci/
-            docker run -d --name couchtest -p 8091-8094:8091-8094 -p 9110:9110 -p 11207-11211:11207-11211 -p 18091-18094:18091-18094 -it $IMAGE_NAME:$CIRCLE_BUILD_NUM
+            docker run -d --name couchtest -p 127.0.0.1:8091-8094:8091-8094 -p 127.0.0.1:9110:9110 -p 127.0.0.1:11207-11211:11207-11211 -p 127.0.0.1:18091-18094:18091-18094 -it $IMAGE_NAME:$CIRCLE_BUILD_NUM
             sleep 20
             # A running cluster will respond with cluster status.
             docker logs --tail=200 couchtest > ~/docker-cean/artifacts/couchbase.log
+      - save_cache:
+          key: dependency-cache-{{ checksum "node/package.json" }}
+          paths:
+            - node_modules
       - run:
           name: "Test couchbase"
           command: |
             sleep 20
             curl -X GET -u $CLUSTER_USERNAME:$CLUSTER_PASSWORD --retry 10 --retry-delay 10 -v http://$COUCHBASE_HOST:$COUCHBASE_PORT/pools/$COUCHBASE_BUCKET/buckets -C -
-      - save_cache:
-          key: dependency-cache-{{ checksum "node/package.json" }}
-          paths:
-            - node_modules
+            sleep 29
+            curl -X GET -u Administrator:123456 --retry 5 --retry-delay 10 -v http://localhost:8091/pools/default/buckets -C -
       - run:
           name: Generate code coverage
           command: './node_modules/.bin/nyc report --reporter=text-lcov'

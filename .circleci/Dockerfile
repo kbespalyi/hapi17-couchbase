@@ -5,11 +5,11 @@ MAINTAINER couchbase-hos
 ENV LCB_LOGLEVEL=5 \
     LCB_OPTIONS=detailed_errcodes=1 \
     COUCHBASE_HOST=localhost \
-    COUCHBASE_BUCKET=example  \
+    COUCHBASE_BUCKET=default  \
     COUCHBASE_PORT=8091  \
     CLUSTER_USERNAME=Administrator  \
     CLUSTER_PASSWORD=123456  \
-    BUCKET=example  \
+    BUCKET=default  \
     RBAC_USERNAME=example  \
     RBAC_PASSWORD=123456  \
     RBAC_ROLES=bucket_full_access[example]
@@ -31,6 +31,6 @@ ENV LCB_LOGLEVEL=5 \
 # 18092: Views, query, XDCR (SSL)
 # 18093: Query services (SSL) (4.0+)
 # 18094: Full-text Search (SSL) (4.5+)
-# EXPOSE 8091 8092 8093 8094 11207 11208 11209 11210 11211 18091 18092 18093 18094
+EXPOSE 8091 8092 8093 8094 11207 11208 11209 11210 11211 18091 18092 18093 18094
 
 # VOLUME /opt/couchbase/var
