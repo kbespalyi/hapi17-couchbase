@@ -32,7 +32,7 @@ docker-net-connect-nginx:
 	docker network connect couchbase my-nginx
 couchbase-test:
 	sleep 20
-	curl -X GET -u ${ADMIN_LOGIN}:${ADMIN_PASSWORD} --retry 5 --retry-delay 10 -v http://${COUCHBASE_HOST}:${COUCHBASE_PORT}/pools/default/buckets -C -
+	curl -X GET -u ${ADMIN_LOGIN}:${ADMIN_PASSWORD} --retry 5 --retry-delay 10 -v http://${COUCHBASE_HOST}:${COUCHBASE_PORT}/pools/${COUCHBASE_BUCKET}/buckets -C -
 couchbase-done:
 	echo "Done!"
 cean-test:

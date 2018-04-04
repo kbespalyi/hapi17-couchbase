@@ -2,29 +2,20 @@ version: 2
 jobs:
   build:
     docker:
-      - image: bentonam/couchbase-docker:enterprise-5.1.0
-        ports:
-          - "8091-8094:8091-8094"
-          - "9110:9110"
-          - "11207-11212:11207-11212"
-          - "18091-18094:18091-18094"
-        environment:
-          COUCHBASE_HOST: localhost
-          COUCHBASE_BUCKET: example
-          COUCHBASE_PORT: 8091
-          CLUSTER_USERNAME: Administrator
-          CLUSTER_PASSWORD: password
-          BUCKET: example
-          RBAC_USERNAME: example
-          RBAC_PASSWORD: 123456
-          RBAC_ROLES: bucket_full_access[example]
+      - image: docker:17.05.0-ce-git
     working_directory: ~/docker-cean
     environment:
+      IMAGE_NAME: couchbase
+      DOCKER_REPO: bentonam
       COUCHBASE_HOST: localhost
       COUCHBASE_BUCKET: example
       COUCHBASE_PORT: 8091
       CLUSTER_USERNAME: Administrator
       CLUSTER_PASSWORD: password
+      BUCKET: example
+      RBAC_USERNAME: example
+      RBAC_PASSWORD: 123456
+      RBAC_ROLES: bucket_full_access[example]
     parallelism: 1
     steps:
       - checkout
@@ -37,6 +28,25 @@ jobs:
       - run:
           name: Artifacts directory creation
           command: mkdir -p ~/docker-cean/artifacts && mkdir -p ~/docker-cean/test-results
+      - run:
+          name: "Starting docker"
+          command: |
+            docker info >/dev/null 2>&1 || service docker start
+            docker version
+      - run:
+          name: "Docker info"
+          command: |
+            docker info
+            export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
+            echo Couchbase host: $DOCKERHOST
+      - run:
+          name: "Starting couchbase"
+          command: |
+            docker build -t $IMAGE_NAME:$CIRCLE_BUILD_NUM .circleci/
+            docker run -d --name couchtest -p 8091-8094:8091-8094 -p 9110:9110 -p 11207-11211:11207-11211 -p 18091-18094:18091-18094 -t $IMAGE_NAME:$CIRCLE_BUILD_NUM
+            sleep 20
+            # A running cluster will respond with cluster status.
+            docker logs --tail=200 couchtest > ~/docker-cean/artifacts/couchbase.log
       - run:
           name: "Test couchbase"
           command: |
