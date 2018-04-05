@@ -1,9 +1,9 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/docker-cean
     docker:
       - image: docker:18.03.0-ce
-    working_directory: ~/docker-cean
     environment:
       IMAGE_NAME: couchbase
       DOCKER_REPO: bentonam
@@ -46,17 +46,21 @@ jobs:
             export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
             echo Couchbase host: $DOCKERHOST
       - run:
-          name: "Starting couchbase"
+          name: "Build couchbase image"
           command: |
             docker build -t $IMAGE_NAME:$CIRCLE_BUILD_NUM .circleci/
-            docker run -d --name couchtest -p 8091-8094:8091-8094 -p 9110:9110 -p 11207-11211:11207-11211 -p 18091-18094:18091-18094 -it $IMAGE_NAME:$CIRCLE_BUILD_NUM
-            sleep 20
-            # A running cluster will respond with cluster status.
-            docker logs --tail=200 couchtest > ~/docker-cean/artifacts/couchbase.log
       - save_cache:
           key: dependency-cache-{{ checksum "node/package.json" }}
           paths:
             - node_modules
+      - run:
+          name: "Starting couchbase"
+          command: |
+            docker run -d --name couchtest -it $IMAGE_NAME:$CIRCLE_BUILD_NUM
+            ## -p 8091-8094:8091-8094 -p 9110:9110 -p 11207-11211:11207-11211 -p 18091-18094:18091-18094
+            sleep 20
+            # A running cluster will respond with cluster status.
+            docker logs --tail=200 couchtest > ~/docker-cean/artifacts/couchbase.log
       - run:
           name: "Test couchbase"
           command: |
